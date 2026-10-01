@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import { FaHeart, FaRing } from "react-icons/fa";
 import Confetti from "./Confetti";
 import { notifySheSaidYes } from "@/lib/discord";
 
-// 🌹 Reasons shown above the buttons when she clicks NO
 const REASONS = [
   "Because every day with you feels like my favorite day 💙",
   "Because your laugh is my favorite sound in the whole world.",
@@ -18,8 +17,10 @@ const REASONS = [
   "Because you already know the answer, Mami. Stop playing hard to get 💙",
 ];
 
-// After this many NO clicks, the NO button starts dodging
 const DODGE_THRESHOLD = 5;
+const PROXIMITY = 100;
+const SAFE_MARGIN = 24;
+const YES_KEEPOUT = 60;
 
 export default function Proposal() {
   const [noCount, setNoCount] = useState(0);
@@ -32,30 +33,63 @@ export default function Proposal() {
   const [notified, setNotified] = useState(false);
 
   const noButtonRef = useRef(null);
+  const yesButtonRef = useRef(null);
   const containerRef = useRef(null);
+
+  // 🆕 Track whether section is on screen — dodge only active here
+  const sectionInView = useInView(containerRef, { amount: 0.4 });
 
   const currentReason = REASONS[Math.min(noCount, REASONS.length - 1)];
 
-  // --- Teleport NO button to a random safe position ---
   const teleportNo = useCallback(() => {
     if (!containerRef.current || !noButtonRef.current) return;
 
     const container = containerRef.current.getBoundingClientRect();
     const btn = noButtonRef.current.getBoundingClientRect();
+    const yesBtn = yesButtonRef.current?.getBoundingClientRect();
 
-    const padding = 20;
-    const maxX = container.width - btn.width - padding * 2;
-    const maxY = container.height - btn.height - padding * 2;
+    const maxX = Math.max(0, container.width - btn.width - SAFE_MARGIN * 2);
+    const maxY = Math.max(0, container.height - btn.height - SAFE_MARGIN * 2);
 
-    const newX = padding + Math.random() * Math.max(1, maxX);
-    const newY = padding + Math.random() * Math.max(1, maxY);
+    let yesZone = null;
+    if (yesBtn) {
+      yesZone = {
+        left: yesBtn.left - container.left - YES_KEEPOUT,
+        top: yesBtn.top - container.top - YES_KEEPOUT,
+        right: yesBtn.right - container.left + YES_KEEPOUT,
+        bottom: yesBtn.bottom - container.top + YES_KEEPOUT,
+      };
+    }
+
+    const maxTries = 40;
+    let newX = SAFE_MARGIN;
+    let newY = SAFE_MARGIN;
+
+    for (let i = 0; i < maxTries; i++) {
+      newX = SAFE_MARGIN + Math.random() * maxX;
+      newY = SAFE_MARGIN + Math.random() * maxY;
+
+      const noRight = newX + btn.width;
+      const noBottom = newY + btn.height;
+
+      if (
+        yesZone &&
+        noRight > yesZone.left &&
+        newX < yesZone.right &&
+        noBottom > yesZone.top &&
+        newY < yesZone.bottom
+      ) {
+        continue;
+      }
+      break;
+    }
 
     setNoPos({ x: newX, y: newY });
   }, []);
 
-  // --- Detect cursor / finger proximity and dodge ---
+  // 🆕 Proximity listeners — only active when section in view AND dodging
   useEffect(() => {
-    if (!dodging) return;
+    if (!dodging || !sectionInView) return;
 
     const handleMove = (clientX, clientY) => {
       if (!noButtonRef.current) return;
@@ -67,8 +101,7 @@ export default function Proposal() {
       const dy = clientY - btnCenterY;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      // If cursor/finger gets within 100px, teleport
-      if (distance < 100) {
+      if (distance < PROXIMITY) {
         teleportNo();
       }
     };
@@ -92,34 +125,27 @@ export default function Proposal() {
       window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("touchstart", onTouchStart);
     };
-  }, [dodging, teleportNo]);
+  }, [dodging, sectionInView, teleportNo]);
 
-  // --- Handle NO click ---
   const handleNo = () => {
     const next = noCount + 1;
     setNoCount(next);
 
-    // YES grows, NO shrinks
     setYesScale((s) => Math.min(s + 0.18, 2.6));
     setNoScale((s) => Math.max(s - 0.15, 0.35));
 
-    // After threshold, enable dodging + teleport immediately
     if (next >= DODGE_THRESHOLD && !dodging) {
       setDodging(true);
-      // Let the DOM update, then teleport
       setTimeout(() => teleportNo(), 50);
     } else if (next > 2) {
-      // Slight random jump after a few clicks to feel playful
       setTimeout(() => teleportNo(), 100);
     }
   };
 
-  // --- Handle YES click ---
   const handleYes = async () => {
     setSaidYes(true);
     setShowConfetti(true);
 
-    // Fire Discord notification after a short celebration beat
     setTimeout(async () => {
       if (!notified) {
         await notifySheSaidYes();
@@ -127,9 +153,11 @@ export default function Proposal() {
       }
     }, 1800);
 
-    // Stop confetti after a while
     setTimeout(() => setShowConfetti(false), 8000);
   };
+
+  // 🆕 Dodge button only renders when BOTH dodging AND section in view
+  const showDodgeButton = !saidYes && dodging && sectionInView;
 
   return (
     <section
@@ -148,7 +176,6 @@ export default function Proposal() {
             transition={{ duration: 0.7 }}
             className="relative w-full max-w-2xl flex flex-col items-center"
           >
-            {/* Section label */}
             <div className="flex items-center justify-center gap-3 mb-6">
               <FaRing className="text-pink-400 text-xl" />
               <p className="text-blue-300/80 tracking-[0.3em] text-xs uppercase">
@@ -156,7 +183,6 @@ export default function Proposal() {
               </p>
             </div>
 
-            {/* Heading */}
             <h2 className="font-cursive text-4xl sm:text-6xl text-center gradient-text mb-4">
               Mami, I have one more question...
             </h2>
@@ -165,7 +191,6 @@ export default function Proposal() {
               (No pressure... but that NO button isn't going to work 😌)
             </p>
 
-            {/* The Question */}
             <motion.h3
               animate={{ scale: [1, 1.03, 1] }}
               transition={{ duration: 3, repeat: Infinity }}
@@ -174,7 +199,6 @@ export default function Proposal() {
               Will you officially be my girlfriend?
             </motion.h3>
 
-            {/* Reason box (appears after first NO) */}
             <div className="h-16 sm:h-20 flex items-center justify-center px-4 w-full mb-8">
               <AnimatePresence mode="wait">
                 {noCount > 0 && (
@@ -192,10 +216,9 @@ export default function Proposal() {
               </AnimatePresence>
             </div>
 
-            {/* Buttons */}
             <div className="relative flex flex-wrap items-center justify-center gap-6 w-full">
-              {/* YES button */}
               <motion.button
+                ref={yesButtonRef}
                 onClick={handleYes}
                 animate={{ scale: yesScale }}
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
@@ -207,7 +230,6 @@ export default function Proposal() {
                 YES 💙
               </motion.button>
 
-              {/* NO button — inline when not dodging, absolute when dodging */}
               {!dodging && (
                 <motion.button
                   ref={noButtonRef}
@@ -250,16 +272,16 @@ export default function Proposal() {
               I love you, Ifediora Peculiar Chidera 💗
             </p>
 
-            {/* <p className="text-blue-200/70 text-sm max-w-md">
+            <p className="text-blue-200/70 text-sm max-w-md">
               Check Discord... someone might already be celebrating over
               there. 😉
-            </p> */}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Dodging NO button — rendered as absolute when teleporting */}
-      {!saidYes && dodging && (
+      {/* 🆕 Dodge button — only visible when section is in view */}
+      {showDodgeButton && (
         <motion.button
           ref={noButtonRef}
           onClick={handleNo}

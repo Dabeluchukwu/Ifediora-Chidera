@@ -13,13 +13,13 @@ export default function Cake() {
   const [blown, setBlown] = useState(false);
   const [litCandles, setLitCandles] = useState(TOTAL_CANDLES);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [wishMade, setWishMade] = useState(false);
+
+  const allOut = litCandles === 0;
 
   const handleBlow = () => {
     if (blown) return;
     setBlown(true);
 
-    // Puff out the candles one by one
     let count = TOTAL_CANDLES;
     const interval = setInterval(() => {
       count -= 1;
@@ -28,7 +28,6 @@ export default function Cake() {
         clearInterval(interval);
         setTimeout(() => {
           setShowConfetti(true);
-          setWishMade(true);
           setTimeout(() => setShowConfetti(false), 5000);
         }, 300);
       }
@@ -42,7 +41,6 @@ export default function Cake() {
     >
       {showConfetti && <Confetti numberOfPieces={220} />}
 
-      {/* Section label */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -72,12 +70,11 @@ export default function Cake() {
       >
         {!blown
           ? "Close your eyes, make a wish, and tap the cake to blow the candles 💙"
-          : wishMade
+          : allOut
           ? "Wish made. I hope every single one comes true, Mami 💗"
           : "Blowing out the candles..."}
       </motion.p>
 
-      {/* Cake */}
       <motion.div
         initial={{ opacity: 0, y: 60 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -87,7 +84,6 @@ export default function Cake() {
         whileHover={!blown ? { scale: 1.03 } : {}}
         whileTap={!blown ? { scale: 0.97 } : {}}
       >
-        {/* Glow behind cake */}
         <div className="absolute inset-0 -z-10 blur-[80px] bg-blue-500/30 rounded-full scale-125" />
 
         {/* CANDLES */}
@@ -96,7 +92,6 @@ export default function Cake() {
             const isLit = i < litCandles;
             return (
               <div key={i} className="relative flex flex-col items-center">
-                {/* Flame */}
                 <AnimatePresence>
                   {isLit && (
                     <motion.div
@@ -131,7 +126,6 @@ export default function Cake() {
                   )}
                 </AnimatePresence>
 
-                {/* Smoke puff on blow-out */}
                 {!isLit && blown && (
                   <motion.div
                     initial={{ opacity: 0.8, y: 0, scale: 0.5 }}
@@ -141,7 +135,6 @@ export default function Cake() {
                   />
                 )}
 
-                {/* Wick + candle body */}
                 <div className="w-[3px] h-2 bg-gray-700 rounded-sm" />
                 <div className="w-3 h-10 sm:w-4 sm:h-12 rounded-sm bg-gradient-to-b from-blue-300 via-blue-500 to-blue-700 shadow-md" />
               </div>
@@ -149,9 +142,8 @@ export default function Cake() {
           })}
         </div>
 
-        {/* TOP LAYER (frosting) */}
+        {/* TOP LAYER */}
         <div className="relative w-56 sm:w-72 h-16 sm:h-20 rounded-t-3xl bg-gradient-to-b from-pink-300 via-pink-400 to-pink-500 shadow-[inset_0_-10px_20px_rgba(0,0,0,0.15)] z-10">
-          {/* Drippy frosting */}
           <div className="absolute -bottom-3 left-0 right-0 flex justify-around">
             {[...Array(7)].map((_, i) => (
               <div
@@ -164,7 +156,6 @@ export default function Cake() {
 
         {/* MIDDLE LAYER */}
         <div className="w-64 sm:w-80 h-20 sm:h-24 bg-gradient-to-b from-blue-700 to-blue-900 rounded-xl shadow-[inset_0_-10px_20px_rgba(0,0,0,0.3)] relative overflow-hidden">
-          {/* Sprinkles */}
           {[...Array(14)].map((_, i) => (
             <div
               key={i}
@@ -195,43 +186,42 @@ export default function Cake() {
           ))}
         </div>
 
-        {/* Plate */}
         <div className="w-[22rem] sm:w-[28rem] h-4 rounded-full bg-gradient-to-b from-blue-200/70 to-blue-500/40 -mt-1 blur-[0.5px]" />
-
-       
-        
       </motion.div>
 
-      {/* Message area — natural flow, always centered */}
-<div className="mt-32 h-24 flex items-center justify-center px-4 w-full">
-  <AnimatePresence mode="wait">
-    {!blown && (
-      <motion.p
-        key="hint"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0.4, 1, 0.4] }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 2, repeat: Infinity }}
-        className="text-blue-300/70 text-sm tracking-widest uppercase text-center"
-      >
-        tap the cake ✨
-      </motion.p>
-    )}
+      {/* Message area — simplified, no mode="wait" */}
+      <div className="mt-32 h-24 flex items-center justify-center px-4 w-full relative">
+        <motion.p
+          key="hint"
+          initial={false}
+          animate={{ opacity: allOut ? 0 : [0.4, 1, 0.4] }}
+          transition={
+            allOut
+              ? { duration: 0.3 }
+              : { duration: 2, repeat: Infinity }
+          }
+          className="absolute text-blue-300/70 text-sm tracking-widest uppercase text-center"
+          style={{ pointerEvents: "none" }}
+        >
+          tap the cake ✨
+        </motion.p>
 
-    {wishMade && (
-      <motion.p
-        key="wish"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="font-cursive text-2xl sm:text-4xl gradient-text text-center leading-tight"
-      >
-        Happy Birthday, Mami{" "}
-        <FaHeart className="inline text-pink-400 text-lg sm:text-xl align-middle" />
-      </motion.p>
-    )}
-  </AnimatePresence>
-</div>
+        <motion.p
+          key="wish"
+          initial={{ opacity: 0, y: 20 }}
+          animate={
+            allOut
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: 20 }
+          }
+          transition={{ duration: 0.8 }}
+          className="absolute font-cursive text-2xl sm:text-4xl gradient-text text-center leading-tight px-4"
+          style={{ pointerEvents: "none" }}
+        >
+          Happy Birthday, Mami{" "}
+          <FaHeart className="inline text-pink-400 text-lg sm:text-xl align-middle" />
+        </motion.p>
+      </div>
     </section>
   );
 }
