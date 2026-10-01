@@ -20,7 +20,7 @@ const REASONS = [
 const DODGE_THRESHOLD = 5;
 const PROXIMITY = 100;
 const SAFE_MARGIN = 24;
-const YES_KEEPOUT = 60;
+const YES_KEEPOUT = 100;
 
 export default function Proposal() {
   const [noCount, setNoCount] = useState(0);
@@ -51,7 +51,9 @@ export default function Proposal() {
     const maxX = Math.max(0, container.width - btn.width - SAFE_MARGIN * 2);
     const maxY = Math.max(0, container.height - btn.height - SAFE_MARGIN * 2);
 
+    // Build YES's keep-out zone in container coords
     let yesZone = null;
+    let yesCenter = null;
     if (yesBtn) {
       yesZone = {
         left: yesBtn.left - container.left - YES_KEEPOUT,
@@ -59,34 +61,67 @@ export default function Proposal() {
         right: yesBtn.right - container.left + YES_KEEPOUT,
         bottom: yesBtn.bottom - container.top + YES_KEEPOUT,
       };
+      yesCenter = {
+        x: yesBtn.left - container.left + yesBtn.width / 2,
+        y: yesBtn.top - container.top + yesBtn.height / 2,
+      };
     }
 
-    const maxTries = 40;
-    let newX = SAFE_MARGIN;
-    let newY = SAFE_MARGIN;
-
-    for (let i = 0; i < maxTries; i++) {
-      newX = SAFE_MARGIN + Math.random() * maxX;
-      newY = SAFE_MARGIN + Math.random() * maxY;
-
-      const noRight = newX + btn.width;
-      const noBottom = newY + btn.height;
-
-      if (
-        yesZone &&
+    const overlapsYes = (x, y) => {
+      if (!yesZone) return false;
+      const noRight = x + btn.width;
+      const noBottom = y + btn.height;
+      return (
         noRight > yesZone.left &&
-        newX < yesZone.right &&
+        x < yesZone.right &&
         noBottom > yesZone.top &&
-        newY < yesZone.bottom
-      ) {
-        continue;
+        y < yesZone.bottom
+      );
+    };
+
+    // --- Attempt 1: random placement, up to 60 tries ---
+    const maxTries = 60;
+    for (let i = 0; i < maxTries; i++) {
+      const newX = SAFE_MARGIN + Math.random() * maxX;
+      const newY = SAFE_MARGIN + Math.random() * maxY;
+
+      if (!overlapsYes(newX, newY)) {
+        setNoPos({ x: newX, y: newY });
+        return;
       }
-      break;
     }
 
-    setNoPos({ x: newX, y: newY });
-  }, []);
+    // --- Attempt 2: fallback — pick the corner farthest from YES ---
+    if (!yesCenter) {
+      setNoPos({ x: SAFE_MARGIN, y: SAFE_MARGIN });
+      return;
+    }
 
+    const corners = [
+      { x: SAFE_MARGIN, y: SAFE_MARGIN },
+      { x: maxX, y: SAFE_MARGIN },
+      { x: SAFE_MARGIN, y: maxY },
+      { x: maxX, y: maxY },
+    ];
+
+    let best = corners[0];
+    let bestScore = -Infinity;
+
+    for (const c of corners) {
+      const dx = c.x + btn.width / 2 - yesCenter.x;
+      const dy = c.y + btn.height / 2 - yesCenter.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const penalty = overlapsYes(c.x, c.y) ? 100000 : 0;
+      const score = dist - penalty;
+
+      if (score > bestScore) {
+        bestScore = score;
+        best = c;
+      }
+    }
+
+    setNoPos({ x: best.x, y: best.y });
+  }, []);
   // 🆕 Proximity listeners — only active when section in view AND dodging
   useEffect(() => {
     if (!dodging || !sectionInView) return;
@@ -273,8 +308,8 @@ export default function Proposal() {
             </p>
 
             <p className="text-blue-200/70 text-sm max-w-md">
-              Check Discord... someone might already be celebrating over
-              there. 😉
+              Check Discord... someone might already be celebrating over there.
+              😉
             </p>
           </motion.div>
         )}
