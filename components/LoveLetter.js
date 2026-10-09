@@ -4,19 +4,19 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { FaHeart, FaEnvelopeOpenText } from "react-icons/fa";
 
-const LETTER_TEXT = `My dearest Mami,
+const LETTER_TEXT = `Hey Mami,
 
-Happy birthday, my love. 💙
+Happy birthday, baby. 💙
 
 I've been trying to find the right words for weeks, and honestly, nothing ever felt big enough for what you mean to me. So I'll just say it the way my heart says it every day:
 
 You are my favorite hello, my hardest goodbye, and my best decision.
 
-The way you laugh at my terrible jokes, the way you say my name, the way you make even the most ordinary Tuesday feel like something worth remembering — every single thing about you has quietly become my home.
+The way you laugh at my terrible jokes, the way you say my name(sometimes😅), the way you make even the most ordinary day feel like something worth remembering — every single thing about you has quietly become my home.
 
 Today isn't just about celebrating your birthday. It's about celebrating the day the world got brighter, softer, and infinitely more beautiful — because it got you.
 
-Thank you for existing, Dera. Thank you for being mine to love.
+Thank you for existing, Dera (Aunty Peku😁). Thank you for giving me a chance.
 
 Here's to more birthdays, more memories, and a lifetime of me being completely obsessed with you.
 

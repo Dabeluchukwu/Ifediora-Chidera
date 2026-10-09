@@ -5,15 +5,15 @@ import { motion, useInView } from "framer-motion";
 import { FaHeart, FaStar } from "react-icons/fa";
 
 const REASONS = [
-  "Because your laugh is my favorite sound in the whole universe.",
+  "Because your voice is my favorite sound in the whole universe.",
   "Because you make even the most boring days feel like an adventure.",
-  "Because you believe in me when I forget to believe in myself.",
-  "Because your hugs feel like home.",
-  "Because you're beautiful — inside, outside, and in every way that matters.",
-  "Because you understand me without me having to explain.",
-  "Because you make me want to be a better man every single day.",
+  "Because your lips are so damm sexy🥰 .",
+  "Because your smile feels like the early morning sun.",
+  "Because you're beautiful — inside, outside, and in every way that matters (especially outside damm!😊).",
+  "Because not talking to you make me feel incomplete.",
+  "Because you make me want to be a better person every single day.",
   "Because every love song suddenly made sense the day I met you.",
-  "Because you're my best friend and my favorite person.",
+  "Because you're my favorite person.",
   "Because you're you, Mami. And that's more than enough.",
 ];
 

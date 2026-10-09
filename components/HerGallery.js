@@ -9,128 +9,157 @@ import { FaHeart, FaPlay, FaCamera } from "react-icons/fa";
 // - Photos: .jpg / .png / .webp
 // - Videos: .mp4 (keep them short & compressed for web)
 //
-// `span` controls the size in the grid:
-//   "normal"  → 1 column
-//   "wide"    → 2 columns (on larger screens)
-//   "tall"    → 2 rows
-//   "big"     → 2 cols x 2 rows (hero card)
-//
 // Photos and videos are INTERLEAVED here for a scrapbook feel.
+// 5 photos + 18 videos = 23 cards total.
 const MEDIA = [
   {
     type: "photo",
-    src: "/gallery/photo1.jpg",
+    src: "/gallery/photo1.jpg.jpeg",
     caption: "The face that started everything 💙",
     rotate: -4,
-    span: "big",
   },
   {
     type: "video",
-    src: "/gallery/video1.mp4",
+    src: "/gallery/vedio1.mp4",
     caption: "How is this even real? 😍",
     rotate: 3,
-    span: "normal",
   },
   {
     type: "video",
-    src: "/gallery/video2.mp4",
+    src: "/gallery/vedio2.mp4",
     caption: "She doesn't even try. And that's the magic.",
     rotate: -3,
-    span: "normal",
-  },
-  {
-    type: "photo",
-    src: "/gallery/photo2.jpg",
-    caption: "This smile owns me — and it knows it.",
-    rotate: 4,
-    span: "tall",
   },
   {
     type: "video",
-    src: "/gallery/video3.mp4",
+    src: "/gallery/vedio3.mp4",
     caption: "Could watch this forever.",
-    rotate: -5,
-    span: "normal",
-  },
-  {
-    type: "photo",
-    src: "/gallery/photo3.jpg",
-    caption: "My favorite view, period.",
-    rotate: 2,
-    span: "wide",
-  },
-  {
-    type: "video",
-    src: "/gallery/video4.mp4",
-    caption: "The way she moves. The way she smiles. Everything.",
-    rotate: -2,
-    span: "normal",
-  },
-  {
-    type: "photo",
-    src: "/gallery/photo4.jpg",
-    caption: "Every frame of her is my favorite frame.",
-    rotate: 5,
-    span: "normal",
-  },
-  {
-    type: "video",
-    src: "/gallery/video5.mp4",
-    caption: "My favorite person, in motion 💙",
-    rotate: -3,
-    span: "normal",
-  },
-  {
-    type: "photo",
-    src: "/gallery/photo5.jpg",
-    caption: "Her. Just her. Always her. 💗",
-    rotate: 3,
-    span: "tall",
-  },
-  {
-    type: "video",
-    src: "/gallery/video6.mp4",
-    caption: "This laugh is my whole world.",
-    rotate: -4,
-    span: "normal",
-  },
-  {
-    type: "video",
-    src: "/gallery/video7.mp4",
-    caption: "Every version of her is my favorite.",
-    rotate: 2,
-    span: "wide",
-  },
-  {
-    type: "photo",
-    src: "/gallery/photo6.jpg",
-    caption: "The most beautiful person I know.",
-    rotate: -2,
-    span: "normal",
-  },
-  {
-    type: "video",
-    src: "/gallery/video8.mp4",
-    caption: "Yeah... I'm obsessed. Sue me. 💗",
     rotate: 4,
-    span: "normal",
+  },
+  {
+    type: "video",
+    src: "/gallery/vedio4.mp4",
+    caption: "The way she moves. The way she smiles. Everything.",
+    rotate: -5,
+  },
+  {
+    type: "photo",
+    src: "/gallery/photo2.jpg.jpeg",
+    caption: "This smile owns me — and it knows it.",
+    rotate: 2,
+  },
+  {
+    type: "video",
+    src: "/gallery/vedio5.mp4",
+    caption: "My favorite person, in motion 💙",
+    rotate: -2,
+  },
+  {
+    type: "video",
+    src: "/gallery/vedio6.mp4",
+    caption: "This laugh is my whole world.",
+    rotate: 5,
+  },
+  {
+    type: "video",
+    src: "/gallery/vedio7.mp4",
+    caption: "Every version of her is my favorite.",
+    rotate: -3,
+  },
+  {
+    type: "video",
+    src: "/gallery/vedio8.mp4",
+    caption: "Yeah... I'm obsessed. Sue me. 💗",
+    rotate: 3,
+  },
+  {
+    type: "photo",
+    src: "/gallery/photo3.jpg.jpeg",
+    caption: "My favorite view, period.",
+    rotate: -4,
+  },
+  {
+    type: "video",
+    src: "/gallery/vedio9.mp4",
+    caption: "The way she laughs at nothing. I love it.",
+    rotate: 2,
+  },
+  {
+    type: "video",
+    src: "/gallery/vedio10.mp4",
+    caption: "Every little thing she does, I notice.",
+    rotate: -2,
+  },
+  {
+    type: "video",
+    src: "/gallery/Snapchat1.mp4",
+    caption: "This is what happiness looks like.",
+    rotate: 4,
+  },
+  {
+    type: "video",
+    src: "/gallery/Snapchat2.mp4",
+    caption: "I could replay this forever.",
+    rotate: -5,
+  },
+  {
+    type: "photo",
+    src: "/gallery/photo4.jpg.jpeg",
+    caption: "Every frame of her is my favorite frame.",
+    rotate: 3,
+  },
+  {
+    type: "video",
+    src: "/gallery/Snapchat3.mp4",
+    caption: "Her energy. Nothing compares.",
+    rotate: -3,
+  },
+  {
+    type: "photo",
+    src: "/gallery/Snapchat5.jpg",
+    caption: "Her. Just her. Always her. 💗",
+    rotate: -4,
+  },
+  {
+    type: "video",
+    src: "/gallery/Snapchat4.mp4",
+    caption: "The prettiest girl I've ever seen.",
+    rotate: 5,
+  },
+  {
+    type: "video",
+    src: "/gallery/Snapchat6.mp4",
+    caption: "Caught her being perfect again. Classic.",
+    rotate: -2,
+  },
+  {
+    type: "video",
+    src: "/gallery/Snapchat7.mp4",
+    caption: "Every second of her is a favorite second.",
+    rotate: 2,
+  },
+  {
+    type: "photo",
+    src: "/gallery/photo5.jpg.jpeg",
+    caption: "Her. Just her. Always her. 💗",
+    rotate: -4,
+  },
+  {
+    type: "video",
+    src: "/gallery/Snapchat8.mp4",
+    caption: "I fall harder every time I watch this.",
+    rotate: 3,
+  },
+  {
+    type: "video",
+    src: "/gallery/Snapchat9.mp4",
+    caption: "The most beautiful person I know.",
+    rotate: -3,
   },
 ];
 
-// Map `span` → Tailwind grid classes
-const SPAN_CLASSES = {
-  normal: "",
-  wide: "sm:col-span-2",
-  tall: "sm:row-span-2",
-  big: "sm:col-span-2 sm:row-span-2",
-};
-
 function MediaCard({ item, index, inView }) {
   const isVideo = item.type === "video";
-  const spanClass = SPAN_CLASSES[item.span] || "";
-
-  // Extra rotation for scrapbook randomness on hover-return
-  const hoverRotate = item.rotate > 0 ? item.rotate - 2 : item.rotate + 2;
 
   return (
     <motion.div
@@ -142,7 +171,7 @@ function MediaCard({ item, index, inView }) {
       }
       transition={{
         duration: 0.7,
-        delay: 0.08 * (index % 8),
+        delay: 0.06 * (index % 8),
         ease: "easeOut",
       }}
       whileHover={{
@@ -151,15 +180,14 @@ function MediaCard({ item, index, inView }) {
         zIndex: 30,
         transition: { duration: 0.3 },
       }}
-      className={`relative ${spanClass} bg-white p-3 pb-14 rounded-sm shadow-[0_10px_40px_rgba(0,0,0,0.6)] cursor-pointer`}
+      className="relative bg-white p-3 pb-14 rounded-sm shadow-[0_10px_40px_rgba(0,0,0,0.6)] cursor-pointer"
     >
-      {/* Washi tape decoration (top-left, only on some cards) */}
+      {/* Washi tape decoration */}
       {index % 3 === 0 && (
         <div
           className="absolute -top-2 -left-2 w-12 h-5 bg-pink-400/70 rotate-[-15deg] shadow-sm"
           style={{
-            clipPath:
-              "polygon(0 10%, 100% 0, 95% 100%, 5% 90%)",
+            clipPath: "polygon(0 10%, 100% 0, 95% 100%, 5% 90%)",
           }}
         />
       )}
@@ -167,14 +195,13 @@ function MediaCard({ item, index, inView }) {
         <div
           className="absolute -top-2 -right-2 w-12 h-5 bg-blue-400/70 rotate-[12deg] shadow-sm"
           style={{
-            clipPath:
-              "polygon(5% 0, 100% 10%, 95% 90%, 0 100%)",
+            clipPath: "polygon(5% 0, 100% 10%, 95% 90%, 0 100%)",
           }}
         />
       )}
 
       {/* Media area */}
-      <div className="relative w-full h-full aspect-square bg-blue-900/40 overflow-hidden rounded-sm">
+      <div className="relative w-full aspect-square bg-blue-900/40 overflow-hidden rounded-sm">
         {isVideo ? (
           <>
             <video
@@ -199,7 +226,7 @@ function MediaCard({ item, index, inView }) {
             onError={(e) => {
               e.currentTarget.style.display = "none";
               e.currentTarget.parentElement.innerHTML =
-                '<div class="w-full h-full flex flex-col items-center justify-center text-blue-200/60 text-sm gap-2"><span style="font-size:32px">💙</span><span>Add photo here</span></div>';
+                '<div class="w-full h-full flex items-center justify-center text-blue-200/60 text-sm gap-2"><span style="font-size:32px">💙</span><span>Add photo here</span></div>';
             }}
           />
         )}
@@ -258,8 +285,8 @@ export default function HerGallery() {
         it's her.
       </motion.p>
 
-      {/* Scrapbook grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[minmax(180px,auto)] gap-6 max-w-6xl w-full">
+      {/* Uniform scrapbook grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl w-full">
         {MEDIA.map((item, i) => (
           <MediaCard key={i} item={item} index={i} inView={inView} />
         ))}
