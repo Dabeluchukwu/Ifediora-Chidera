@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { useEffect } from "react";
+import { motion } from "framer-motion";
 import { FaHeart, FaPlay, FaCamera } from "react-icons/fa";
 
 // 🔁 REPLACE these paths with your real files.
@@ -158,17 +158,13 @@ const MEDIA = [
   },
 ];
 
-function MediaCard({ item, index, inView }) {
+function MediaCard({ item, index }) {
   const isVideo = item.type === "video";
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 60, rotate: 0, scale: 0.9 }}
-      animate={
-        inView
-          ? { opacity: 1, y: 0, rotate: item.rotate, scale: 1 }
-          : {}
-      }
+      animate={{ opacity: 1, y: 0, rotate: item.rotate, scale: 1 }}
       transition={{
         duration: 0.7,
         delay: 0.06 * (index % 8),
@@ -243,19 +239,20 @@ function MediaCard({ item, index, inView }) {
   );
 }
 
-export default function HerGallery() {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
+export default function HerGallery({ onComplete }) {
+  // Fire onComplete when the closing line finishes fading in.
+  // Closing line: delay 1.8s + duration 1s = 2.8s after mount.
+  useEffect(() => {
+    const t = setTimeout(() => onComplete?.(), 2800);
+    return () => clearTimeout(t);
+  }, [onComplete]);
 
   return (
-    <section
-      ref={ref}
-      className="relative min-h-screen px-4 py-24 flex flex-col items-center justify-center"
-    >
+    <section className="relative min-h-screen px-4 py-24 flex flex-col items-center justify-center">
       {/* Section label */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        animate={inView ? { opacity: 1, y: 0 } : {}}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="flex items-center justify-center gap-3 mb-6"
       >
@@ -268,7 +265,7 @@ export default function HerGallery() {
       {/* Heading */}
       <motion.h2
         initial={{ opacity: 0, scale: 0.9 }}
-        animate={inView ? { opacity: 1, scale: 1 } : {}}
+        animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, delay: 0.2 }}
         className="font-cursive text-5xl sm:text-6xl text-center gradient-text mb-4"
       >
@@ -277,7 +274,7 @@ export default function HerGallery() {
 
       <motion.p
         initial={{ opacity: 0 }}
-        animate={inView ? { opacity: 1 } : {}}
+        animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.4 }}
         className="text-blue-200/70 text-center mb-16 max-w-lg px-4"
       >
@@ -288,14 +285,14 @@ export default function HerGallery() {
       {/* Uniform scrapbook grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl w-full">
         {MEDIA.map((item, i) => (
-          <MediaCard key={i} item={item} index={i} inView={inView} />
+          <MediaCard key={i} item={item} index={i} />
         ))}
       </div>
 
       {/* Closing line */}
       <motion.p
         initial={{ opacity: 0 }}
-        animate={inView ? { opacity: 1 } : {}}
+        animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 1.8 }}
         className="font-cursive text-2xl sm:text-3xl text-pink-300/80 mt-16 text-center px-4"
       >

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { motion, useInView, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { FaHeart, FaRing } from "react-icons/fa";
 import Confetti from "./Confetti";
 import { notifySheSaidYes } from "@/lib/discord";
@@ -35,9 +35,6 @@ export default function Proposal() {
   const noButtonRef = useRef(null);
   const yesButtonRef = useRef(null);
   const containerRef = useRef(null);
-
-  // 🆕 Track whether section is on screen — dodge only active here
-  const sectionInView = useInView(containerRef, { amount: 0.4 });
 
   const currentReason = REASONS[Math.min(noCount, REASONS.length - 1)];
 
@@ -122,9 +119,10 @@ export default function Proposal() {
 
     setNoPos({ x: best.x, y: best.y });
   }, []);
-  // 🆕 Proximity listeners — only active when section in view AND dodging
+
+  // Proximity listeners — only active when dodging
   useEffect(() => {
-    if (!dodging || !sectionInView) return;
+    if (!dodging) return;
 
     const handleMove = (clientX, clientY) => {
       if (!noButtonRef.current) return;
@@ -160,7 +158,7 @@ export default function Proposal() {
       window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("touchstart", onTouchStart);
     };
-  }, [dodging, sectionInView, teleportNo]);
+  }, [dodging, teleportNo]);
 
   const handleNo = () => {
     const next = noCount + 1;
@@ -191,8 +189,7 @@ export default function Proposal() {
     setTimeout(() => setShowConfetti(false), 8000);
   };
 
-  // 🆕 Dodge button only renders when BOTH dodging AND section in view
-  const showDodgeButton = !saidYes && dodging && sectionInView;
+  const showDodgeButton = !saidYes && dodging;
 
   return (
     <section
@@ -303,19 +300,18 @@ export default function Proposal() {
               Mami, you just made me the happiest man alive.
             </p>
 
-            <p className="text-pink-300/90 font-cursive text-2xl sm:text-3xl mb-8">
+            <p className="text-pink-300/90 font-cursive text-2xl sm:text-3xl mb-12">
               I love you, Ifediora Peculiar Chidera 💗
             </p>
 
-            <p className="text-blue-200/70 text-sm max-w-md">
-              Check Discord... someone might already be celebrating over there.
-              😉
+            <p className="text-white/40 text-sm">
+              Made with 💙 just for you, Mami.
             </p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* 🆕 Dodge button — only visible when section is in view */}
+      {/* Dodge button — visible when dodging */}
       {showDodgeButton && (
         <motion.button
           ref={noButtonRef}

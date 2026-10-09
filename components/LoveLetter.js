@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { FaHeart, FaEnvelopeOpenText } from "react-icons/fa";
 
 const LETTER_TEXT = `Hey Mami,
@@ -23,15 +23,11 @@ Here's to more birthdays, more memories, and a lifetime of me being completely o
 Forever yours,
 Dabi 💙`;
 
-export default function LoveLetter() {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
+export default function LoveLetter({ onComplete }) {
   const [displayed, setDisplayed] = useState("");
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    if (!inView) return;
-
     let i = 0;
     const interval = setInterval(() => {
       if (i < LETTER_TEXT.length) {
@@ -40,22 +36,20 @@ export default function LoveLetter() {
       } else {
         setDone(true);
         clearInterval(interval);
+        onComplete?.();
       }
-    }, 22);
+    }, 13);
 
     return () => clearInterval(interval);
-  }, [inView]);
+  }, [onComplete]);
 
   return (
-    <section
-      ref={ref}
-      className="relative min-h-screen flex items-center justify-center px-4 py-24 blue-section"
-    >
+    <section className="relative min-h-screen flex items-center justify-center px-4 py-24 blue-section">
       <div className="relative w-full max-w-3xl">
         {/* Section label */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="flex items-center justify-center gap-3 mb-8"
         >
@@ -67,7 +61,7 @@ export default function LoveLetter() {
 
         <motion.h2
           initial={{ opacity: 0, scale: 0.9 }}
-          animate={inView ? { opacity: 1, scale: 1 } : {}}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           className="font-cursive text-5xl sm:text-6xl text-center gradient-text mb-10"
         >
@@ -77,7 +71,7 @@ export default function LoveLetter() {
         {/* Letter card */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
           className="relative rounded-3xl border border-blue-500/30 bg-black/60 backdrop-blur-xl p-8 sm:p-12 shadow-[0_0_60px_rgba(59,130,246,0.2)]"
         >

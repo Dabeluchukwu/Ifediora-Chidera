@@ -2,16 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { FaHeart, FaChevronDown } from "react-icons/fa";
+import { FaHeart } from "react-icons/fa";
 import Confetti from "./Confetti";
 
-export default function Hero() {
+export default function Hero({ onComplete }) {
   const [showConfetti, setShowConfetti] = useState(true);
 
   useEffect(() => {
-    const t = setTimeout(() => setShowConfetti(false), 6000);
+    const t = setTimeout(() => {
+      setShowConfetti(false);
+      onComplete?.();
+    }, 6000);
     return () => clearTimeout(t);
-  }, []);
+  }, [onComplete]);
 
   // Floating hearts background
   const hearts = Array.from({ length: 12 });
@@ -93,22 +96,9 @@ export default function Hero() {
           transition={{ duration: 1, delay: 1.4 }}
           className="text-pink-300/90 font-cursive text-2xl"
         >
-          Scroll down, my love 💗
+          When you're ready, my love 💗
         </motion.p>
       </div>
-
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1, y: [0, 10, 0] }}
-        transition={{
-          opacity: { delay: 1.8, duration: 0.6 },
-          y: { duration: 1.8, repeat: Infinity, ease: "easeInOut" },
-        }}
-        className="absolute bottom-10 text-blue-300/70 text-2xl"
-      >
-        <FaChevronDown />
-      </motion.div>
     </section>
   );
 }

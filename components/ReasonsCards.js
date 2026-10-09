@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { FaHeart, FaStar } from "react-icons/fa";
 
 const REASONS = [
@@ -17,17 +17,37 @@ const REASONS = [
   "Because you're you, Mami. And that's more than enough.",
 ];
 
-function FlipCard({ reason, index, inView }) {
-  const [flipped, setFlipped] = useState(false);
+const FLIPPED_KEY = "mami-reasons-flipped";
+const SEEN_KEY = "mami-reasons-seen";
 
+function readSet(key) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function writeSet(key, set) {
+  try {
+    sessionStorage.setItem(key, JSON.stringify([...set]));
+  } catch {
+    // ignore
+  }
+}
+
+function FlipCard({ reason, index, flipped, onToggle }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.08 }}
       className="relative h-48 w-full cursor-pointer"
       style={{ perspective: "1200px" }}
-      onClick={() => setFlipped(!flipped)}
+      onClick={() => onToggle(index)}
     >
       <motion.div
         className="relative w-full h-full"
@@ -64,18 +84,69 @@ function FlipCard({ reason, index, inView }) {
   );
 }
 
-export default function ReasonsCards() {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
+export default function ReasonsCards({ onComplete }) {
+  // Indices currently showing their back
+  const [flipped, setFlipped] = useState(() => new Set());
+  // Indices that have EVER been flipped (never shrinks)
+  const [seen, setSeen] = useState(() => new Set());
+  // Whether the rule has been satisfied at least once
+  const [completed, setCompleted] = useState(false);
+  // Have we hydrated from sessionStorage yet?
+  const [hydrated, setHydrated] = useState(false);
+
+  // Guard so onComplete fires only once
+  const firedRef = useRef(false);
+
+  // Hydrate from sessionStorage on mount
+  useEffect(() => {
+    const storedFlipped = readSet(FLIPPED_KEY);
+    const storedSeen = readSet(SEEN_KEY);
+    setFlipped(storedFlipped);
+    setSeen(storedSeen);
+    if (storedSeen.size === REASONS.length) {
+      setCompleted(true);
+    }
+    setHydrated(true);
+  }, []);
+
+  // Fire onComplete when completed first becomes true (after hydration)
+  useEffect(() => {
+    if (!hydrated) return;
+    if (completed && !firedRef.current) {
+      firedRef.current = true;
+      onComplete?.();
+    }
+  }, [completed, hydrated, onComplete]);
+
+  const handleToggle = (index) => {
+    setFlipped((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      writeSet(FLIPPED_KEY, next);
+      return next;
+    });
+
+    setSeen((prev) => {
+      if (prev.has(index)) return prev;
+      const next = new Set(prev);
+      next.add(index);
+      writeSet(SEEN_KEY, next);
+      if (next.size === REASONS.length) {
+        setCompleted(true);
+      }
+      return next;
+    });
+  };
 
   return (
-    <section
-      ref={ref}
-      className="relative min-h-screen px-4 py-24 flex flex-col items-center justify-center blue-section"
-    >
+    <section className="relative min-h-screen px-4 py-24 flex flex-col items-center justify-center blue-section">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        animate={inView ? { opacity: 1, y: 0 } : {}}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="flex items-center justify-center gap-3 mb-6"
       >
@@ -87,7 +158,7 @@ export default function ReasonsCards() {
 
       <motion.h2
         initial={{ opacity: 0, scale: 0.9 }}
-        animate={inView ? { opacity: 1, scale: 1 } : {}}
+        animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, delay: 0.2 }}
         className="font-cursive text-5xl sm:text-6xl text-center gradient-text mb-4"
       >
@@ -96,7 +167,7 @@ export default function ReasonsCards() {
 
       <motion.p
         initial={{ opacity: 0 }}
-        animate={inView ? { opacity: 1 } : {}}
+        animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.4 }}
         className="text-blue-200/70 text-center mb-16 max-w-md"
       >
@@ -109,7 +180,8 @@ export default function ReasonsCards() {
             key={i}
             reason={reason}
             index={i}
-            inView={inView}
+            flipped={flipped.has(i)}
+            onToggle={handleToggle}
           />
         ))}
       </div>
